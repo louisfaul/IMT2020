@@ -23,10 +23,10 @@
 
 namespace QuantLib {
 
-    ExtendedJarrowRudd::ExtendedJarrowRudd(
+    ExtendedJarrowRudd3::ExtendedJarrowRudd3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real)
-    : ExtendedEqualProbabilitiesBinomialTree<ExtendedJarrowRudd>(
+    : ExtendedEqualProbabilitiesBinomialTree3<ExtendedJarrowRudd3>(
                                                         process, end, steps) {
         // drift removed
         for (Size i = 0; i <= steps; i ++) {
@@ -36,17 +36,17 @@ namespace QuantLib {
         up_ = process->stdDeviation(0.0, x0_, dt_);
     }
 
-    Real ExtendedJarrowRudd::upStep(Size i) const {
+    Real ExtendedJarrowRudd3::upStep(Size i) const {
         Time stepTime = i*this->dt_;
         return this->treeProcess_->stdDeviation(stepTime, x0_, dt_);
     }
 
 
 
-    ExtendedCoxRossRubinstein::ExtendedCoxRossRubinstein(
+    ExtendedCoxRossRubinstein3::ExtendedCoxRossRubinstein3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real)
-    : ExtendedEqualJumpsBinomialTree<ExtendedCoxRossRubinstein>(
+    : ExtendedEqualJumpsBinomialTree3<ExtendedCoxRossRubinstein3>(
                                                         process, end, steps) {
         for (Size i = 0; i <= steps; i ++) {
             Time stepTime = i*this->dt_;
@@ -60,20 +60,20 @@ namespace QuantLib {
         QL_REQUIRE(pu_>=0.0, "negative probability");
     }
 
-    Real ExtendedCoxRossRubinstein::dxStep(Size i) const {
+    Real ExtendedCoxRossRubinstein3::dxStep(Size i) const {
         Time stepTime = i*this->dt_;
         return this->treeProcess_->stdDeviation(stepTime, x0_, dt_);
     }
 
-    Real ExtendedCoxRossRubinstein::probUp(Size i) const {
+    Real ExtendedCoxRossRubinstein3::probUp(Size i) const {
         return 0.5 + 0.5*this->driftStepStorage[i]/this->dxStepStorage[i];
     }
 
 
-    ExtendedAdditiveEQPBinomialTree::ExtendedAdditiveEQPBinomialTree(
+    ExtendedAdditiveEQPBinomialTree3::ExtendedAdditiveEQPBinomialTree3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real)
-    : ExtendedEqualProbabilitiesBinomialTree<ExtendedAdditiveEQPBinomialTree>(
+    : ExtendedEqualProbabilitiesBinomialTree3<ExtendedAdditiveEQPBinomialTree3>(
                                                         process, end, steps) {
           Real driftStep_ = this->driftStepStorage[0];
           for (Size i = 0; i <= steps; i ++) {
@@ -85,7 +85,7 @@ namespace QuantLib {
 				          3.0*driftStep_*driftStep_);
     }
 
-    Real ExtendedAdditiveEQPBinomialTree::upStep(Size i) const {
+    Real ExtendedAdditiveEQPBinomialTree3::upStep(Size i) const {
       Time stepTime = i*this->dt_;
       Real driftStep_ = this->driftStepStorage[i];
       return (-0.5 * driftStep_ + 0.5 *
@@ -96,10 +96,10 @@ namespace QuantLib {
 
 
 
-    ExtendedTrigeorgis::ExtendedTrigeorgis(
+    ExtendedTrigeorgis3::ExtendedTrigeorgis3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real)
-    : ExtendedEqualJumpsBinomialTree<ExtendedTrigeorgis>(process, end, steps) {
+    : ExtendedEqualJumpsBinomialTree3<ExtendedTrigeorgis3>(process, end, steps) {
         Real driftStep_ = this->driftStepStorage[0];
         for (Size i = 0; i <= steps; i ++) {
             Time stepTime = i*this->dt_;
@@ -115,21 +115,21 @@ namespace QuantLib {
         QL_REQUIRE(pu_>=0.0, "negative probability");
     }
 
-    Real ExtendedTrigeorgis::dxStep(Size i) const {
+    Real ExtendedTrigeorgis3::dxStep(Size i) const {
         Time stepTime = i*this->dt_;
         Real driftStep_ = this->driftStepStorage[i];
         return std::sqrt(this->treeProcess_->variance(stepTime, x0_, dt_) +
 			     driftStep_*driftStep_);
     }
 
-    Real ExtendedTrigeorgis::probUp(Size i) const {
+    Real ExtendedTrigeorgis3::probUp(Size i) const {
         return 0.5 + 0.5*this->driftStepStorage[i]/this->dxStepStorage[i];
     }
 
-    ExtendedTian::ExtendedTian(
+    ExtendedTian3::ExtendedTian3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real)
-    : ExtendedBinomialTree<ExtendedTian>(process, end, steps) {
+    : ExtendedBinomialTree3<ExtendedTian>(process, end, steps) {
 
         Real q = std::exp(process->variance(0.0, x0_, dt_));
         Real r = std::exp(this->driftStepStorage[0])*std::sqrt(q);
@@ -145,7 +145,7 @@ namespace QuantLib {
         QL_REQUIRE(pu_>=0.0, "negative probability");
     }
 
-    Real ExtendedTian::underlying(Size i, Size index) const {
+    Real ExtendedTian3::underlying(Size i, Size index) const {
         Time stepTime = i*this->dt_;
         Real q = std::exp(this->treeProcess_->variance(stepTime, x0_, dt_));
         Real r = std::exp(this->driftStepStorage[i])*std::sqrt(q);
@@ -157,7 +157,7 @@ namespace QuantLib {
             * std::pow(up, Real(index));
     }
 
-    Real ExtendedTian::probability(Size i, Size, Size branch) const {
+    Real ExtendedTian3::probability(Size i, Size, Size branch) const {
         Time stepTime = i*this->dt_;
         Real q = std::exp(this->treeProcess_->variance(stepTime, x0_, dt_));
         Real r = std::exp(this->driftStepStorage[i])*std::sqrt(q);
@@ -174,10 +174,10 @@ namespace QuantLib {
 
 
 
-    ExtendedLeisenReimer::ExtendedLeisenReimer(
+    ExtendedLeisenReimer3::ExtendedLeisenReimer3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real strike)
-    : ExtendedBinomialTree<ExtendedLeisenReimer>(process, end,
+    : ExtendedBinomialTree3<ExtendedLeisenReimer3>(process, end,
                                                  (steps%2 ? steps : steps+1)),
       end_(end), oddSteps_(steps%2 ? steps : steps+1), strike_(strike) {
 
@@ -198,7 +198,7 @@ namespace QuantLib {
 
     }
 
-    Real ExtendedLeisenReimer::underlying(Size i, Size index) const {
+    Real ExtendedLeisenReimer3::underlying(Size i, Size index) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
 
@@ -218,7 +218,7 @@ namespace QuantLib {
             * std::pow(up, Real(index));
     }
 
-    Real ExtendedLeisenReimer::probability(Size i, Size, Size branch) const {
+    Real ExtendedLeisenReimer3::probability(Size i, Size, Size branch) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
         Real d2 = (std::log(x0_ / strike_) + this->driftStepStorage[i]*oddSteps_) /
@@ -232,7 +232,7 @@ namespace QuantLib {
 
 
 
-    Real ExtendedJoshi4::computeUpProb(Real k, Real dj) const {
+    Real ExtendedJoshi43::computeUpProb(Real k, Real dj) const {
         Real alpha = dj/(std::sqrt(8.0));
         Real alpha2 = alpha*alpha;
         Real alpha3 = alpha*alpha2;
@@ -252,10 +252,10 @@ namespace QuantLib {
         return p;
     }
 
-    ExtendedJoshi4::ExtendedJoshi4(
+    ExtendedJoshi43::ExtendedJoshi43(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real strike)
-    : ExtendedBinomialTree<ExtendedJoshi4>(process, end,
+    : ExtendedBinomialTree3<ExtendedJoshi43>(process, end,
                                            (steps%2 ? steps : steps+1)),
       end_(end), oddSteps_(steps%2 ? steps : steps+1), strike_(strike) {
 
@@ -273,7 +273,7 @@ namespace QuantLib {
         down_ = (ermqdt - pu_ * up_) / (1.0 - pu_);
     }
 
-    Real ExtendedJoshi4::underlying(Size i, Size index) const {
+    Real ExtendedJoshi43::underlying(Size i, Size index) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
 
@@ -292,7 +292,7 @@ namespace QuantLib {
             * std::pow(up, Real(index));
     }
 
-    Real ExtendedJoshi4::probability(Size i, Size, Size branch) const {
+    Real ExtendedJoshi43::probability(Size i, Size, Size branch) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
 

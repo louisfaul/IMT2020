@@ -9,7 +9,7 @@
 #include <ql/pricingengines/vanilla/analytichestonengine.hpp>
 #include <ql/pricingengines/vanilla/baroneadesiwhaleyengine.hpp>
 #include <ql/pricingengines/vanilla/batesengine.hpp>
-#include <ql/pricingengines/vanilla/binomialengine.hpp>
+#include <ql/pricingengines/vanilla/binomialengine3.hpp>
 #include <ql/pricingengines/vanilla/bjerksundstenslandengine.hpp>
 #include <ql/pricingengines/vanilla/fdamericanengine.hpp>
 #include <ql/pricingengines/vanilla/fdbermudanengine.hpp>
@@ -25,8 +25,9 @@
 #include <iomanip>
 #include <iostream>
 #include <ql/time/date.hpp>
+#include <ql/experimental/lattices/extendedbinomialtree3.cpp>
 #include <ql/experimental/lattices/extendedbinomialtree3.hpp>
-//#include <ql/experimental/lattices/extendedbinomialtree.hpp>
+#include <ql/experimental/lattices/extendedbinomialtree.hpp>
 #include <ql/termstructures/volatility/equityfx/blackvariancecurve.hpp>
 //#include <ql/quantlib.hpp>
 using namespace std;
@@ -152,7 +153,7 @@ Size widths[] = {35, 14, 14, 14};
 
     // Binomial method: Jarrow-Rudd
     europeanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
-        new BinomialVanillaEngine<ExtendedJarrowRudd>(bsmProcess, timeSteps)));
+        new BinomialVanillaEngine3<ExtendedJarrowRudd>(variableBsmProcess, timeSteps)));
     std::cout << std::setw(widths[1]) << std::left << europeanOption.NPV()
               << std::endl;
 
@@ -160,6 +161,50 @@ Size widths[] = {35, 14, 14, 14};
     std::cout << " \nRun completed in ";
     std::cout << seconds << " s\n" << std::endl;
 
+        timer.restart();
+    double seconds2 = timer.elapsed();
+    std::cout << " \nStart in ";
+    std::cout << seconds2 << " s\n" << std::endl;
+
+
+
+    // Binomial method: Jarrow-Rudd
+    europeanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
+        new BinomialVanillaEngine3<ExtendedJarrowRudd3>(variableBsmProcess, timeSteps)));
+    std::cout << std::setw(widths[1]) << std::left << europeanOption.NPV()
+              << std::endl;
+
+    seconds2 = timer.elapsed();
+    std::cout << " \nRun completed in ";
+    std::cout << seconds2<< " s\n" << std::endl;
+
+            timer.restart();
+    double seconds3 = timer.elapsed();
+    std::cout << " \nStart in ";
+    std::cout << seconds3 << " s\n" << std::endl;
+
+        europeanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
+        new BinomialVanillaEngine3<ExtendedJarrowRudd3>(bsmProcess, timeSteps)));
+    std::cout << std::setw(widths[1]) << std::left << europeanOption.NPV()
+              << std::endl;
+
+    seconds3 = timer.elapsed();
+    std::cout << " \nRun completed in ";
+    std::cout << seconds3 << " s\n" << std::endl;
+
+            timer.restart();
+    double seconds4 = timer.elapsed();
+    std::cout << " \nStart in ";
+    std::cout << seconds4 << " s\n" << std::endl;
+
+        europeanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
+        new BinomialVanillaEngine3<ExtendedJarrowRudd>(bsmProcess, timeSteps)));
+    std::cout << std::setw(widths[1]) << std::left << europeanOption.NPV()
+              << std::endl;
+
+    seconds4 = timer.elapsed();
+    std::cout << " \nRun completed in ";
+    std::cout << seconds4 << " s\n" << std::endl;
 
         //std::cout << "Risk-free interest rate = " << io::rate(riskFreeRate)<< std::endl;
         //std::cout << "Dividend yield = " << io::rate(dividendYield)<< std::endl;

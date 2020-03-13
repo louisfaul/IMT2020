@@ -30,8 +30,7 @@ namespace QuantLib {
                                                         process, end, steps) {
         // drift removed
         for (Size i = 0; i <= steps; i ++) {
-            Time stepTime = i*this->dt_;
-            upStepStorage.push_back(this->upStep(stepTime));
+            upStepStorage.push_back(this->upStep(i));
         }
         up_ = process->stdDeviation(0.0, x0_, dt_);
     }
@@ -49,9 +48,8 @@ namespace QuantLib {
     : ExtendedEqualJumpsBinomialTree3<ExtendedCoxRossRubinstein3>(
                                                         process, end, steps) {
         for (Size i = 0; i <= steps; i ++) {
-            Time stepTime = i*this->dt_;
-            dxStepStorage.push_back(this->dxStep(stepTime));
-            probUpStorage.push_back(this->probUp(stepTime));
+            dxStepStorage.push_back(this->dxStep(i));
+            probUpStorage.push_back(this->probUp(i));
         }
         dx_ = process->stdDeviation(0.0, x0_, dt_);
         pu_ = 0.5 + 0.5*this->driftStepStorage[0] / dx_;
@@ -77,8 +75,7 @@ namespace QuantLib {
                                                         process, end, steps) {
           Real driftStep_ = this->driftStepStorage[0];
           for (Size i = 0; i <= steps; i ++) {
-              Time stepTime = i*this->dt_;
-              upStepStorage.push_back(this->upStep(stepTime));
+              upStepStorage.push_back(this->upStep(i));
           }
           up_ = -0.5 * driftStep_ + 0.5 *
 				      std::sqrt(4.0*process->variance(0.0, x0_, dt_) -
@@ -102,9 +99,8 @@ namespace QuantLib {
     : ExtendedEqualJumpsBinomialTree3<ExtendedTrigeorgis3>(process, end, steps) {
         Real driftStep_ = this->driftStepStorage[0];
         for (Size i = 0; i <= steps; i ++) {
-            Time stepTime = i*this->dt_;
-            dxStepStorage.push_back(this->dxStep(stepTime));
-            probUpStorage.push_back(this->probUp(stepTime));
+            dxStepStorage.push_back(this->dxStep(i));
+            probUpStorage.push_back(this->probUp(i));
         }
         dx_ = std::sqrt(process->variance(0.0, x0_, dt_) +
             driftStep_*driftStep_);
@@ -129,7 +125,7 @@ namespace QuantLib {
     ExtendedTian3::ExtendedTian3(
                         const ext::shared_ptr<StochasticProcess1D>& process,
                         Time end, Size steps, Real)
-    : ExtendedBinomialTree3<ExtendedTian>(process, end, steps) {
+    : ExtendedBinomialTree3<ExtendedTian3>(process, end, steps) {
 
         Real q = std::exp(process->variance(0.0, x0_, dt_));
         Real r = std::exp(this->driftStepStorage[0])*std::sqrt(q);

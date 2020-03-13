@@ -9,10 +9,12 @@
 #include <ql/pricingengines/vanilla/analytichestonengine.hpp>
 #include <ql/pricingengines/vanilla/baroneadesiwhaleyengine.hpp>
 #include <ql/pricingengines/vanilla/batesengine.hpp>
-#include <ql/pricingengines/vanilla/binomialengine3.hpp>
+#include "binomialengine3.hpp"
+//#include <ql/pricingengines/vanilla/binomialengine3.hpp>
 #include <ql/pricingengines/vanilla/bjerksundstenslandengine.hpp>
 #include <ql/pricingengines/vanilla/fdamericanengine.hpp>
 #include <ql/pricingengines/vanilla/fdbermudanengine.hpp>
+#include <ql/pricingengines/vanilla/fdeuropeanengine.hpp>
 #include <ql/pricingengines/vanilla/fdeuropeanengine.hpp>
 #include <ql/pricingengines/vanilla/integralengine.hpp>
 #include <ql/pricingengines/vanilla/mcamericanengine.hpp>
@@ -25,8 +27,9 @@
 #include <iomanip>
 #include <iostream>
 #include <ql/time/date.hpp>
-#include <ql/experimental/lattices/extendedbinomialtree3.cpp>
-#include <ql/experimental/lattices/extendedbinomialtree3.hpp>
+#include "extendedbinomialtree3.cpp"
+#include "extendedbinomialtree3.hpp"
+//#include <ql/experimental/lattices/extendedbinomialtree3.hpp>
 #include <ql/experimental/lattices/extendedbinomialtree.hpp>
 #include <ql/termstructures/volatility/equityfx/blackvariancecurve.hpp>
 //#include <ql/quantlib.hpp>
@@ -55,12 +58,11 @@ Size timeSteps = 1000;
 Volatility volatility = 0.20;
 Date maturity(27, Jan, 2021);
 DayCounter dayCounter = Actual365Fixed();
-Date deuxiemeDate(27,Apr,2020);
 std::vector<Date> dates(4);
 dates[0] = settlementDate;
 dates[1] = Date(27,Apr,2020);
 dates[2] = Date(27,Jul,2020);
-dates[3] = Date(27,Jan,2021);
+dates[3] = Date(29,Jan,2021);
 std::vector<Rate> rates(4);
 rates[0] = 0.020;
 rates[1] = 0.022;
@@ -82,6 +84,8 @@ Handle<BlackVolTermStructure> variantVolTS(boost::shared_ptr<BlackVolTermStructu
 	dayCounter)));
 
 boost::shared_ptr<Exercise> europeanExercise(new EuropeanExercise(maturity));
+
+ext::shared_ptr<Exercise> americanExercise(new AmericanExercise(settlementDate,maturity));
 
 Handle<Quote> underlyingH(boost::shared_ptr<Quote>(new SimpleQuote(stock)));
 
@@ -129,6 +133,8 @@ VanillaOption europeanOption(
 	payoff,
 	europeanExercise);
 
+VanillaOption americanOption(payoff, americanExercise);
+
 // computing the option price with the analytic Black-Scholes formulae
 //europeanOption.setPricingEngine(boost::shared_ptr<PricingEngine>(
 //	new AnalyticEuropeanEngine(
@@ -158,7 +164,7 @@ Size widths[] = {35, 14, 14, 14};
               << std::endl;
 
     seconds = timer.elapsed();
-    std::cout << " \nRun completed in ";
+    std::cout << " Time to price European option with time dependant parameter without cache : ";
     std::cout << seconds << " s\n" << std::endl;
 
         timer.restart();
@@ -175,7 +181,7 @@ Size widths[] = {35, 14, 14, 14};
               << std::endl;
 
     seconds2 = timer.elapsed();
-    std::cout << " \nRun completed in ";
+    std::cout << " Time to price European option with time dependant parameter using vector solution : ";
     std::cout << seconds2<< " s\n" << std::endl;
 
             timer.restart();
@@ -183,13 +189,13 @@ Size widths[] = {35, 14, 14, 14};
     std::cout << " \nStart in ";
     std::cout << seconds3 << " s\n" << std::endl;
 
-        europeanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
-        new BinomialVanillaEngine3<ExtendedJarrowRudd3>(bsmProcess, timeSteps)));
-    std::cout << std::setw(widths[1]) << std::left << europeanOption.NPV()
+        americanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
+        new BinomialVanillaEngine3<ExtendedJarrowRudd3>(variableBsmProcess, timeSteps)));
+    std::cout << std::setw(widths[1]) << std::left << americanOption.NPV()
               << std::endl;
 
     seconds3 = timer.elapsed();
-    std::cout << " \nRun completed in ";
+    std::cout << " Time to price American option with time dependant parameter using vector solution :  ";
     std::cout << seconds3 << " s\n" << std::endl;
 
             timer.restart();
@@ -197,13 +203,13 @@ Size widths[] = {35, 14, 14, 14};
     std::cout << " \nStart in ";
     std::cout << seconds4 << " s\n" << std::endl;
 
-        europeanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
-        new BinomialVanillaEngine3<ExtendedJarrowRudd>(bsmProcess, timeSteps)));
-    std::cout << std::setw(widths[1]) << std::left << europeanOption.NPV()
+        americanOption.setPricingEngine(ext::shared_ptr<PricingEngine>(
+        new BinomialVanillaEngine3<ExtendedJarrowRudd>(variableBsmProcess, timeSteps)));
+    std::cout << std::setw(widths[1]) << std::left << americanOption.NPV()
               << std::endl;
 
     seconds4 = timer.elapsed();
-    std::cout << " \nRun completed in ";
+    std::cout << " \Time to price American option with time dependant parameter without cache solution  :  ";
     std::cout << seconds4 << " s\n" << std::endl;
 
         //std::cout << "Risk-free interest rate = " << io::rate(riskFreeRate)<< std::endl;

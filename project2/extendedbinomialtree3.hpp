@@ -23,7 +23,7 @@
 
 #ifndef quantlib_extended_binomial_tree3_hpp
 #define quantlib_extended_binomial_tree3_hpp
-
+//#include "extendedbinomialtree3.cpp"
 #include <ql/instruments/dividendschedule.hpp>
 #include <ql/methods/lattices/tree.hpp>
 #include <ql/stochasticprocess.hpp>
@@ -49,8 +49,7 @@ namespace QuantLib {
             dt_ = end/steps;
             driftPerStep_ = process->drift(0.0, x0_) * dt_;
             for (Size i = 0; i <= steps; i ++) {
-                Time stepTime = i*this->dt_;
-                driftStepStorage.push_back(this->driftStep(stepTime));
+                driftStepStorage.push_back(this->driftStep(i));
             }
 
         }
